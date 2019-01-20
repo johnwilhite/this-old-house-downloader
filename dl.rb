@@ -20,9 +20,10 @@ File.open('list.txt', 'r') do |list|
     name = line.split('/')[-1]
     name = name.split('#')[0]
     file_name = "S#{season_padded}E#{episode_padded}-#{name}.mp4"
+    cookies = (File.exist? '../cookies.txt') ? '--cookies ../cookies.txt' : ''
 
     next if File.exist? file_name
 
-    system "youtube-dl --cookies ../cookies.txt -o #{file_name} #{line}"
+    system "youtube-dl #{cookies} -o #{file_name} #{line}"
   end
 end
