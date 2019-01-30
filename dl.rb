@@ -1,29 +1,41 @@
 #!/usr/bin/env ruby
 require 'fileutils'
+require 'json'
 
-season = ARGV.last.dup
+arg = ARGV.last.dup
+file = File.open 'seasons.json'
+seasons = JSON.parse(file.read)
 
-# match to season directory and cd if it exists
-dir = Dir.glob("#{season}*").first.to_s
-abort 'Season directory not found' unless !dir.empty? && Dir.chdir(dir)
+# regex match argument to a season
+selection = seasons.find {|season, episodes| /#{arg}.*/.match season}
 
-File.open('list.txt', 'r') do |list|
-  list.each_line do |line|
-    puts line
+# if season not found
+if not selection
+    puts 'Season info not found, try one of the following:'
+    puts seasons.keys
+    exit
+end
 
-    # create file name as S##E##-name
-    # if line contains # use everything after that as ep name, else use last two chars
-    line = line.gsub("\n", '')
-    season.slice! 'toh-'
-    season_padded = season.to_s.rjust(2, '0')
-    episode_padded = line.include?('#') ? line.partition('#').last : line.chars.last(2).join
-    name = line.split('/')[-1]
-    name = name.split('#')[0]
-    file_name = "S#{season_padded}E#{episode_padded}-#{name}.mp4"
+season = selection[0]
+episodes = selection[1]
+
+# make directory and change to it
+FileUtils.mkdir_p season
+Dir.chdir season
+
+# download each episode
+episodes.each do |episode|
+    file_name = "#{episode[1]}.mp4"
+    url = episode[0]
     cookies = (File.exist? '../cookies.txt') ? '--cookies ../cookies.txt' : ''
 
-    next if File.exist? file_name
+    if File.exist? file_name
+        puts "#{file_name} already exists"
+        next
+    end
 
-    system "youtube-dl #{cookies} -o #{file_name} #{line}"
-  end
+    puts "\n\n\nDownloading #{url} \r\n\n"
+    system "youtube-dl #{cookies} -o #{file_name} #{url}"
 end
+
+

@@ -1,4 +1,7 @@
-cookies.txt
-*.mp4
-*.part
-*.ytdl
+# Ignore everything
+*
+
+# except
+!.gitignore
+!dl.rb
+!seasons.json
