@@ -29,10 +29,7 @@ episodes.each do |episode|
 	url = episode[0]
 	cookies = (File.exist? '../cookies.txt') ? '--cookies ../cookies.txt' : ''
 
-	if File.exist? file_name
-		puts "#{file_name} already exists"
-		next
-	end
+	next puts "#{file_name} already exists" if File.exist? file_name
 
 	puts "\n\n\nDownloading #{url} \r\n\n"
 	system "youtube-dl #{cookies} -o #{file_name} #{url}"
